@@ -35,6 +35,8 @@ void USpudState::StoreWorldGlobals(UWorld* World)
 
 void USpudState::StoreLevel(ULevel* Level, bool bRelease, bool bBlocking)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::StoreLevel"))
+
 	const FString LevelName = GetLevelName(Level);
 	auto LevelData = GetLevelData(LevelName, true);
 
@@ -385,6 +387,8 @@ void USpudState::StoreGlobalObject(UObject* Obj, FSpudNamedObjectData* Data)
 
 void USpudState::StoreObjectProperties(UObject* Obj, FSpudPropertyData& Properties, FSpudClassMetadata& Meta, int StartDepth)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::StoreObjectProperties"))
+
 	auto& PropOffsets = Properties.PropertyOffsets;
 		
 	auto& PropData = Properties.Data;
@@ -413,6 +417,8 @@ void USpudState::RestoreLevel(UWorld* World, const FString& LevelName)
 
 void USpudState::RestoreLevel(ULevel* Level)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::RestoreLevel"))
+
 	if (!IsValid(Level))
 		return;
 	
@@ -588,6 +594,8 @@ bool USpudState::ShouldActorVelocityBeRestored(AActor* Actor) const
 
 void USpudState::RestoreActor(AActor* Actor, FSpudSaveData::TLevelDataPtr LevelData, const TMap<FGuid, UObject*>* RuntimeObjects)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::RestoreActor"))
+
 	if (Actor->HasAnyFlags(RF_ClassDefaultObject|RF_ArchetypeObject|RF_BeginDestroyed))
 		return;
 
@@ -619,6 +627,8 @@ void USpudState::RestoreActor(AActor* Actor, FSpudSaveData::TLevelDataPtr LevelD
 
 void USpudState::PreRestoreObject(UObject* Obj, uint32 StoredUserVersion)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::PreRestoreObject"))
+
 	if(Obj->GetClass()->ImplementsInterface(USpudObjectCallback::StaticClass()))
 	{
 		if (GCurrentUserDataModelVersion != StoredUserVersion)
@@ -631,6 +641,8 @@ void USpudState::PreRestoreObject(UObject* Obj, uint32 StoredUserVersion)
 
 void USpudState::PostRestoreObject(UObject* Obj, const FSpudCustomData& FromCustomData, uint32 StoredUserVersion)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::PostRestoreObject"))
+
 	if (Obj->GetClass()->ImplementsInterface(USpudObjectCallback::StaticClass()))
 	{
 		if (GCurrentUserDataModelVersion != StoredUserVersion)
@@ -646,6 +658,8 @@ void USpudState::PostRestoreObject(UObject* Obj, const FSpudCustomData& FromCust
 
 void USpudState::RestoreCoreActorData(AActor* Actor, const FSpudCoreActorData& FromData)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::RestoreCoreActorData"))
+
 	// Restore core data based on version
 	// Unlike properties this is packed data, versioned
 
@@ -741,6 +755,8 @@ void USpudState::RestoreCoreActorData(AActor* Actor, const FSpudCoreActorData& F
 void USpudState::RestoreObjectProperties(UObject* Obj, const FSpudPropertyData& FromData, const FSpudClassMetadata& Meta,
 	const TMap<FGuid, UObject*>* RuntimeObjects, int StartDepth)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::RestoreObjectProperties"))
+
 	FMemoryReader In(FromData.Data);
 	RestoreObjectProperties(Obj, In, Meta, RuntimeObjects, StartDepth);
 
@@ -785,6 +801,8 @@ void USpudState::RestoreObjectPropertiesFast(UObject* Obj, FMemoryReader& In,
                                              const TMap<FGuid, UObject*>* RuntimeObjects,
                                              int StartDepth)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::RestoreObjectPropertiesFast"))
+
 	UE_LOG(LogSpudState, Verbose, TEXT("%s FAST path, %d properties"), *SpudPropertyUtil::GetLogPrefix(StartDepth), ClassDef->Properties.Num());
 	const auto StoredPropertyIterator = ClassDef->Properties.CreateConstIterator();
 
@@ -799,6 +817,8 @@ void USpudState::RestoreObjectPropertiesSlow(UObject* Obj, FMemoryReader& In,
                                                        const TMap<FGuid, UObject*>* RuntimeObjects,
                                                        int StartDepth)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::RestoreObjectPropertiesSlow"))
+
 	UE_LOG(LogSpudState, Verbose, TEXT("%s SLOW path, %d properties"), *SpudPropertyUtil::GetLogPrefix(StartDepth), ClassDef->Properties.Num());
 
 	RestoreSlowPropertyVisitor Visitor(this, In, *ClassDef, Meta, RuntimeObjects);
@@ -966,6 +986,8 @@ void USpudState::RestoreGlobalObject(UObject* Obj, const FSpudNamedObjectData* D
 }
 void USpudState::StoreActor(AActor* Actor, FSpudSaveData::TLevelDataPtr LevelData)
 {
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("USpudState::StoreActor"))
+
 	if (Actor->HasAnyFlags(RF_ClassDefaultObject|RF_ArchetypeObject|RF_BeginDestroyed))
 		return;
 
